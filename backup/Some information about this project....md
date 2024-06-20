@@ -1,2 +1,1 @@
 To begin with, this is a blog frame called Gmeek written by Meekdai you can create a repository and directly deploy it by clicking [here](https://github.com/Meekdai/Gmeek). I just wanted to include that here also to mark an interesting start to my written articles in the future.
-
