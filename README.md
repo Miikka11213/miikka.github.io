@@ -1,5 +1,5 @@
 # Miikka's Blog :link: https://Miikka11213.github.io/miikka.github.io 
-### :page_facing_up: [4](https://Miikka11213.github.io/miikka.github.io/tag.html) 
+### :page_facing_up: [4](https://blog.miikkaarchive.com/) 
 ### :speech_balloon: 0 
 ### :hibiscus: 607 
 ### :alarm_clock: 2024-06-20 13:07:42 
