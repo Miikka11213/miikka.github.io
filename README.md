@@ -1,4 +1,4 @@
-# Miikka's Blog :link: https://Miikka11213.github.io/miikka.github.io 
+# Miikka's Blog :link: https://blog.miikkaarchive.com/ 
 ### :page_facing_up: [4](https://blog.miikkaarchive.com/) 
 ### :speech_balloon: 0 
 ### :hibiscus: 607 
