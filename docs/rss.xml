@@ -1,5 +1,142 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<rss xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/" version="2.0"><channel><title>Miikka's Blog</title><link>https://Miikka11213.github.io/miikka.github.io</link><description>This is my blog, I will post some interesting articles including tutorials and reviews.</description><copyright>Miikka's Blog</copyright><docs>http://www.rssboard.org/rss-specification</docs><generator>python-feedgen</generator><image><url>https://avatars.githubusercontent.com/u/91852814?v=4</url><title>avatar</title><link>https://Miikka11213.github.io/miikka.github.io</link></image><lastBuildDate>Thu, 20 Jun 2024 05:19:02 +0000</lastBuildDate><managingEditor>Miikka's Blog</managingEditor><ttl>60</ttl><webMaster>Miikka's Blog</webMaster><item><title>Some information about this project...</title><link>https://Miikka11213.github.io/miikka.github.io/post/Some%20information%20about%20this%20project....html</link><description>To begin with, this is a blog frame called Gmeek written by Meekdai you can create a repository and directly deploy it by clicking [here](https://github.com/Meekdai/Gmeek). I just wanted to include that here also to mark an interesting start to my written articles in the future.&#13;
+<rss xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/" version="2.0"><channel><title>Miikka's Blog</title><link>https://Miikka11213.github.io/miikka.github.io</link><description>This is my blog, I will post some interesting articles including tutorials and reviews.</description><copyright>Miikka's Blog</copyright><docs>http://www.rssboard.org/rss-specification</docs><generator>python-feedgen</generator><image><url>https://avatars.githubusercontent.com/u/91852814?v=4</url><title>avatar</title><link>https://Miikka11213.github.io/miikka.github.io</link></image><lastBuildDate>Thu, 23 Jan 2025 23:57:46 +0000</lastBuildDate><managingEditor>Miikka's Blog</managingEditor><ttl>60</ttl><webMaster>Miikka's Blog</webMaster><item><title>Time Complexity Analysis of Algorithms</title><link>https://Miikka11213.github.io/miikka.github.io/post/Time%20Complexity%20Analysis%20of%20Algorithms.html</link><description>
+# Time Complexity Analysis of Algorithms
+
+This document explains the time complexities of common algorithms along with example code snippets for each.
+
+---
+
+## 1. **Insertion Sort**
+- **Best Case**: \( O(n) \) (Array is already sorted)
+- **Average Case**: \( O(n^2) \)
+- **Worst Case**: \( O(n^2) \) (Array is sorted in reverse order)
+
+### Code Example:
+```c
+void insertionSort(int array[], int n) {
+    for (int i = 1; i &lt; n; i++) {
+        int key = array[i];
+        int j = i - 1;
+        while (j &gt;= 0 &amp;&amp; array[j] &gt; key) {
+            array[j + 1] = array[j];
+            j--;
+        }
+        array[j + 1] = key;
+    }
+}
+```
+
+---
+
+## 2. **Bubble Sort**
+- **Best Case**: \( O(n) \) (Array is already sorted)
+- **Average Case**: \( O(n^2) \)
+- **Worst Case**: \( O(n^2) \) (Array is sorted in reverse order)
+
+### Code Example:
+```c
+void bubbleSort(int array[], int n) {
+    for (int i = 0; i &lt; n - 1; i++) {
+        for (int j = 0; j &lt; n - i - 1; j++) {
+            if (array[j] &gt; array[j + 1]) {
+                int temp = array[j];
+                array[j] = array[j + 1];
+                array[j + 1] = temp;
+            }
+        }
+    }
+}
+```
+
+---
+
+## 3. **Merge Sort**
+- **Best Case**: \( O(n \log n) \)
+- **Average Case**: \( O(n \log n) \)
+- **Worst Case**: \( O(n \log n) \)
+
+### Code Example:
+```c
+void merge(int array[], int left, int mid, int right) {
+    int n1 = mid - left + 1;
+    int n2 = right - mid;
+    int L[n1], R[n2];
+
+    for (int i = 0; i &lt; n1; i++)
+        L[i] = array[left + i];
+    for (int i = 0; i &lt; n2; i++)
+        R[i] = array[mid + 1 + i];
+
+    int i = 0, j = 0, k = left;
+    while (i &lt; n1 &amp;&amp; j &lt; n2) {
+        if (L[i] &lt;= R[j]) array[k++] = L[i++];
+        else array[k++] = R[j++];
+    }
+
+    while (i &lt; n1) array[k++] = L[i++];
+    while (j &lt; n2) array[k++] = R[j++];
+}
+
+void mergeSort(int array[], int left, int right) {
+    if (left &lt; right) {
+        int mid = left + (right - left) / 2;
+        mergeSort(array, left, mid);
+        mergeSort(array, mid + 1, right);
+        merge(array, left, mid, right);
+    }
+}
+```
+
+---
+
+## 4. **Binary Search**
+- **Best Case**: \( O(1) \) (Target found at the middle)
+- **Average Case**: \( O(\log n) \)
+- **Worst Case**: \( O(\log n) \)
+
+### Code Example:
+```c
+int binarySearch(int array[], int n, int target) {
+    int left = 0, right = n - 1;
+    while (left &lt;= right) {
+        int mid = left + (right - left) / 2;
+        if (array[mid] == target) return mid;
+        else if (array[mid] &lt; target) left = mid + 1;
+        else right = mid - 1;
+    }
+    return -1;
+}
+```
+
+---
+
+## 5. **Linear Search**
+- **Best Case**: \( O(1) \) (Target is the first element)
+- **Average Case**: \( O(n) \)
+- **Worst Case**: \( O(n) \) (Target is not in the array or at the end)
+
+### Code Example:
+```c
+int linearSearch(int array[], int n, int target) {
+    for (int i = 0; i &lt; n; i++) {
+        if (array[i] == target) return i;
+    }
+    return -1;
+}
+```
+
+---
+
+## Summary of Time Complexities
+
+| Algorithm              | Best Case  | Average Case | Worst Case   |
+|------------------------|------------|--------------|--------------|
+| **Insertion Sort**     | \( O(n) \) | \( O(n^2) \) | \( O(n^2) \) |
+| **Bubble Sort**        | \( O(n) \) | \( O(n^2) \) | \( O(n^2) \) |
+| **Merge Sort**         | \( O(n \log n) \) | \( O(n \log n) \) | \( O(n \log n) \) |
+| **Binary Search**      | \( O(1) \) | \( O(\log n) \) | \( O(\log n) \) |
+| **Linear Search**      | \( O(1) \) | \( O(n) \) | \( O(n) \) |
+。</description><guid isPermaLink="true">https://Miikka11213.github.io/miikka.github.io/post/Time%20Complexity%20Analysis%20of%20Algorithms.html</guid><pubDate>Thu, 23 Jan 2025 23:53:22 +0000</pubDate></item><item><title>Some information about this project...</title><link>https://Miikka11213.github.io/miikka.github.io/post/Some%20information%20about%20this%20project....html</link><description>To begin with, this is a blog frame called Gmeek written by Meekdai you can create a repository and directly deploy it by clicking [here](https://github.com/Meekdai/Gmeek). I just wanted to include that here also to mark an interesting start to my written articles in the future.&#13;
 &#13;
 To visit my own original webpage, redirect by clicking [miikkaarchive.com](https://miikkaarchive.com/), I am still learning HTML and thinking what I can add into this page, I also need to come up with a solution to make a portfolio for my photography works, but it will take some time.&#13;
 。</description><guid isPermaLink="true">https://Miikka11213.github.io/miikka.github.io/post/Some%20information%20about%20this%20project....html</guid><pubDate>Thu, 20 Jun 2024 04:45:35 +0000</pubDate></item><item><title>test</title><link>https://Miikka11213.github.io/miikka.github.io/post/test.html</link><description>this is the testing issues part。</description><guid isPermaLink="true">https://Miikka11213.github.io/miikka.github.io/post/test.html</guid><pubDate>Wed, 19 Jun 2024 16:34:47 +0000</pubDate></item></channel></rss>
