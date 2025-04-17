@@ -1,5 +1,13 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<rss xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/" version="2.0"><channel><title>Miikka's Blog</title><link>https://Miikka11213.github.io/miikka.github.io</link><description>This is my blog, I will post some interesting articles including tutorials and reviews.</description><copyright>Miikka's Blog</copyright><docs>http://www.rssboard.org/rss-specification</docs><generator>python-feedgen</generator><image><url>https://avatars.githubusercontent.com/u/91852814?v=4</url><title>avatar</title><link>https://Miikka11213.github.io/miikka.github.io</link></image><lastBuildDate>Thu, 17 Apr 2025 02:12:52 +0000</lastBuildDate><managingEditor>Miikka's Blog</managingEditor><ttl>60</ttl><webMaster>Miikka's Blog</webMaster><item><title>Ways of Living: Ethics Across Classical Philosophies</title><link>https://Miikka11213.github.io/miikka.github.io/post/Ways%20of%20Living-%20Ethics%20Across%20Classical%20Philosophies.html</link><description>### Ways of Living: Ethics Across Classical Philosophies @Miikka11212 
+<rss xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/" version="2.0"><channel><title>Miikka's Blog</title><link>https://Miikka11213.github.io/miikka.github.io</link><description>This is my blog, I will post some interesting articles including tutorials and reviews.</description><copyright>Miikka's Blog</copyright><docs>http://www.rssboard.org/rss-specification</docs><generator>python-feedgen</generator><image><url>https://avatars.githubusercontent.com/u/91852814?v=4</url><title>avatar</title><link>https://Miikka11213.github.io/miikka.github.io</link></image><lastBuildDate>Thu, 17 Apr 2025 02:22:35 +0000</lastBuildDate><managingEditor>Miikka's Blog</managingEditor><ttl>60</ttl><webMaster>Miikka's Blog</webMaster><item><title>How to change workflow after deprecation of Ubuntu 20.04</title><link>https://Miikka11213.github.io/miikka.github.io/post/How%20to%20change%20workflow%20after%20deprecation%20of%20Ubuntu%2020.04.html</link><description>In your repository with workflow file, in .yml
+
+simply change `runs-on: ubuntu-20.04` 
+
+to `runs-on: ubuntu-latest`
+
+this should automatically change it to ubuntu 24 #8 
+
+https://github.com/actions/runner-images/issues/11101。</description><guid isPermaLink="true">https://Miikka11213.github.io/miikka.github.io/post/How%20to%20change%20workflow%20after%20deprecation%20of%20Ubuntu%2020.04.html</guid><pubDate>Thu, 17 Apr 2025 02:19:31 +0000</pubDate></item><item><title>Ways of Living: Ethics Across Classical Philosophies</title><link>https://Miikka11213.github.io/miikka.github.io/post/Ways%20of%20Living-%20Ethics%20Across%20Classical%20Philosophies.html</link><description>### Ways of Living: Ethics Across Classical Philosophies @Miikka11212 
 
 
 
