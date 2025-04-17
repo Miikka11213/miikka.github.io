@@ -40,7 +40,7 @@ At last, the topic of ethics itself. Ethics discusses on how a person should act
 
 In conclusion, ethics is a widely discussed topic throughout classical philosophies. While metaphysics and epistemology are deeply connected to ethics, so too is ethics shaped by our understanding of reality and knowledge. These philosophers do not just teach us abstract theories, they guide us on how to think, how to judge, and ultimately how to live a righteous life. Across traditions, whether through reason, discipline, or harmony, ethics is the bridge between thought and action, showing us what it means to be fully human.
 
-Lastly I wanna include my favourite mathematical formula, it is the Gamma functions, it introduces factorial on real numbers and complex numbers.
+Lastly I wanna include my favourite mathematical formula, it is the Gamma functions, it expands factorial on real numbers and complex numbers.
 
 $$\Gamma (z) = \int^{\infty}_{0} t^{z-1} e^{-t} dt$$ 
  

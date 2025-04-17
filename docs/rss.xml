@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<rss xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/" version="2.0"><channel><title>Miikka's Blog</title><link>https://Miikka11213.github.io/miikka.github.io</link><description>This is my blog, I will post some interesting articles including tutorials and reviews.</description><copyright>Miikka's Blog</copyright><docs>http://www.rssboard.org/rss-specification</docs><generator>python-feedgen</generator><image><url>https://avatars.githubusercontent.com/u/91852814?v=4</url><title>avatar</title><link>https://Miikka11213.github.io/miikka.github.io</link></image><lastBuildDate>Thu, 17 Apr 2025 02:10:36 +0000</lastBuildDate><managingEditor>Miikka's Blog</managingEditor><ttl>60</ttl><webMaster>Miikka's Blog</webMaster><item><title>Ways of Living: Ethics Across Classical Philosophies</title><link>https://Miikka11213.github.io/miikka.github.io/post/Ways%20of%20Living-%20Ethics%20Across%20Classical%20Philosophies.html</link><description>### Ways of Living: Ethics Across Classical Philosophies @Miikka11212 
+<rss xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/" version="2.0"><channel><title>Miikka's Blog</title><link>https://Miikka11213.github.io/miikka.github.io</link><description>This is my blog, I will post some interesting articles including tutorials and reviews.</description><copyright>Miikka's Blog</copyright><docs>http://www.rssboard.org/rss-specification</docs><generator>python-feedgen</generator><image><url>https://avatars.githubusercontent.com/u/91852814?v=4</url><title>avatar</title><link>https://Miikka11213.github.io/miikka.github.io</link></image><lastBuildDate>Thu, 17 Apr 2025 02:12:52 +0000</lastBuildDate><managingEditor>Miikka's Blog</managingEditor><ttl>60</ttl><webMaster>Miikka's Blog</webMaster><item><title>Ways of Living: Ethics Across Classical Philosophies</title><link>https://Miikka11213.github.io/miikka.github.io/post/Ways%20of%20Living-%20Ethics%20Across%20Classical%20Philosophies.html</link><description>### Ways of Living: Ethics Across Classical Philosophies @Miikka11212 
 
 
 
@@ -41,7 +41,7 @@ At last, the topic of ethics itself. Ethics discusses on how a person should act
 
 In conclusion, ethics is a widely discussed topic throughout classical philosophies. While metaphysics and epistemology are deeply connected to ethics, so too is ethics shaped by our understanding of reality and knowledge. These philosophers do not just teach us abstract theories, they guide us on how to think, how to judge, and ultimately how to live a righteous life. Across traditions, whether through reason, discipline, or harmony, ethics is the bridge between thought and action, showing us what it means to be fully human.
 
-Lastly I wanna include my favourite mathematical formula, it is the Gamma functions, it introduces factorial on real numbers and complex numbers.
+Lastly I wanna include my favourite mathematical formula, it is the Gamma functions, it expands factorial on real numbers and complex numbers.
 
 $$\Gamma (z) = \int^{\infty}_{0} t^{z-1} e^{-t} dt$$ 
  
