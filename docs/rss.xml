@@ -1,5 +1,53 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<rss xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/" version="2.0"><channel><title>Miikka's Blog</title><link>https://Miikka11213.github.io/miikka.github.io</link><description>This is my blog, I will post some interesting articles including tutorials and reviews.</description><copyright>Miikka's Blog</copyright><docs>http://www.rssboard.org/rss-specification</docs><generator>python-feedgen</generator><image><url>https://avatars.githubusercontent.com/u/91852814?v=4</url><title>avatar</title><link>https://Miikka11213.github.io/miikka.github.io</link></image><lastBuildDate>Thu, 17 Apr 2025 02:22:35 +0000</lastBuildDate><managingEditor>Miikka's Blog</managingEditor><ttl>60</ttl><webMaster>Miikka's Blog</webMaster><item><title>How to change workflow after deprecation of Ubuntu 20.04</title><link>https://Miikka11213.github.io/miikka.github.io/post/How%20to%20change%20workflow%20after%20deprecation%20of%20Ubuntu%2020.04.html</link><description>In your repository with workflow file, in .yml
+<rss xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/" version="2.0"><channel><title>Miikka's Blog</title><link>https://Miikka11213.github.io/miikka.github.io</link><description>This is my blog, I will post some interesting articles including tutorials and reviews.</description><copyright>Miikka's Blog</copyright><docs>http://www.rssboard.org/rss-specification</docs><generator>python-feedgen</generator><image><url>https://avatars.githubusercontent.com/u/91852814?v=4</url><title>avatar</title><link>https://Miikka11213.github.io/miikka.github.io</link></image><lastBuildDate>Thu, 04 Sep 2025 20:35:06 +0000</lastBuildDate><managingEditor>Miikka's Blog</managingEditor><ttl>60</ttl><webMaster>Miikka's Blog</webMaster><item><title>Assembly Language Terms</title><link>https://Miikka11213.github.io/miikka.github.io/post/Assembly%20Language%20Terms.html</link><description># COE538 Assembly Basics Cheat Sheet
+
+## Instruction Abbreviations
+
+- **LDAA** → **LoaD Accumulator A**  
+  - Example: `LDAA #55` → Load A with 55  
+- **LDAB** → **LoaD Accumulator B**
+- **ADDA** → **ADd to Accumulator A**  
+  - Example: `ADDA $20` → A = A + value at memory address $20  
+- **SUBA** → **SUBtract from Accumulator A**  
+- **STAA** → **STore Accumulator A** into memory  
+- **TFR** → **TRansFeR** between registers  
+- **EXG** → **EXchanGe** registers  
+- **INCA** → **INCrement A** → A = A + 1  
+- **NOP** → **No OPeration** (do nothing)
+
+---
+
+## Special Symbols
+
+- `#` → **Immediate Value**  
+  - Means: 'Use this number directly, not from memory.'  
+  - Example: `LDAA #55` → A = 55  
+
+- `$` → **Hexadecimal Number**  
+  - Means: 'The following number is in hexadecimal.'  
+  - Example: `LDAA $20` → A = value stored at memory[0x20]  
+
+- `@` → **Indirect Addressing** (pointer)  
+  - Means: 'Use the memory location stored in a register or memory cell.'  
+  - Example: `LDAA @X` → A = memory[X]  
+
+---
+
+## C Language Analogy
+
+- `LDAA #55` → `A = 55;`  
+- `LDAA $20` → `A = memory[0x20];`  
+- `LDAA @X` → `A = memory[X];`  
+
+---
+
+## CCR (Condition Code Register) Flags
+
+- **C (Carry):** Unsigned overflow → e.g. 255 + 1 = 0 with C = 1  
+- **V (Overflow):** Signed overflow → e.g. 127 + 1 = -128 with V = 1  
+- **Z (Zero):** Result is zero  
+- **N (Negative):** Result is negative (most significant bit = 1)
+。</description><guid isPermaLink="true">https://Miikka11213.github.io/miikka.github.io/post/Assembly%20Language%20Terms.html</guid><pubDate>Thu, 04 Sep 2025 20:33:34 +0000</pubDate></item><item><title>How to change workflow after deprecation of Ubuntu 20.04</title><link>https://Miikka11213.github.io/miikka.github.io/post/How%20to%20change%20workflow%20after%20deprecation%20of%20Ubuntu%2020.04.html</link><description>In your repository with workflow file, in .yml
 
 simply change `runs-on: ubuntu-20.04` 
 
