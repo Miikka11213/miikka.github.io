@@ -1,0 +1,991 @@
+<!DOCTYPE html>
+<html data-color-mode="light" data-dark-theme="dark" data-light-theme="light" lang="zh-CN">
+<head>
+    <meta content="text/html; charset=utf-8" http-equiv="content-type" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <link href='https://mirrors.sustech.edu.cn/cdnjs/ajax/libs/Primer/21.0.7/primer.css' rel='stylesheet' />
+    
+    <link rel="icon" href="https://avatars.githubusercontent.com/u/91852814?v=4"><script>
+        let theme = localStorage.getItem("meek_theme") || "light";
+        document.documentElement.setAttribute("data-color-mode", theme);
+    </script>
+<meta name="description" content="# 🧭 HCS12 Register Summary Sheet
+
+---
+
+## ⚡ Analog-to-Digital Converter (ATD)
+
+---
+
+### **ATDCTL2 — Control Register 2**
+**Full Name:** ATD Control Register 2  
+**Purpose:** Controls ADC power, fast flag clearing, external trigger, and interrupt enable.  
+
+| Bit | Name | Function |
+|-----|------|-----------|
+| 7 | **ADPU** | 1 = Power up ATD (must set before use) |
+| 6 | **AFFC** | Fast flag clear; 1 = read result clears flag |
+| 5-4 | **ETRIGLE / ETRIGP** | Select edge/level for external trigger:<br>00 falling, 01 rising, 10 low, 11 high |
+| 3 | **ETRIGE** | Enable external trigger |
+| 2 | **ASCIE** | Enable ATD sequence complete interrupt |
+| 1 | **ASCIF** | ATD sequence complete flag |
+
+**Controls:** Power, interrupt, and trigger behavior.  
+
+**Example:**
+```asm
+LDAA  #%10000000   ; ADPU=1 → power up ATD
+STAA  ATDCTL2
+```
+---
+
+### **ATDCTL3 — Control Register 3**
+**Full Name:** ATD Control Register 3  
+**Purpose:** Sets conversion sequence length and result register mode.  
+
+| Bits | Name | Function |
+|-------|------|-----------|
+| 7-4 | **S8C–S1C** | Sequence length (0000=8 conv, 0001=1 conv …) |
+| 3 | **FIFO** | 1 = FIFO mode (wrap results), 0 = normal |
+| 2-0 | — | Unused |
+
+**Controls:** Number of conversions per sequence + how results are stored.  
+
+**Example:**
+```asm
+LDAA  #%00000001   ; 1 conversion, normal mode
+STAA  ATDCTL3
+```
+---
+
+### **ATDCTL4 — Control Register 4**
+**Full Name:** ATD Control Register 4  
+**Purpose:** Sets resolution, sample time, and ADC clock speed (prescaler).  
+
+| Bit | Name | Function |
+|-----|------|-----------|
+| 7 | **SRES8** | 0=10-bit, 1=8-bit resolution |
+| 6-5 | **SMP1:SMP0** | Sample time (00=2, 01=4, 10=8, 11=16 ATD clocks) |
+| 4-0 | **PRS4–PRS0** | Prescaler (00101=÷12, 01101=÷24, 10111=÷48) |
+
+**Controls:** Conversion precision and timing.  
+
+**Example:**
+```asm
+LDAA  #%00010101   ; 10-bit, sample=2, prescaler=÷12
+STAA  ATDCTL4
+```
+---
+
+### **ATDCTL5 — Control Register 5**
+**Full Name:** ATD Control Register 5  
+**Purpose:** Starts a new conversion and selects channel/mode.  
+
+| Bit | Name | Function |
+|-----|------|-----------|
+| 7 | **DJM** | 0=left-justified, 1=right-justified result |
+| 6 | **DSGN** | 0=unsigned, 1=signed |
+| 5 | **SCAN** | 0=single sequence, 1=continuous mode |
+| 4 | **MULT** | 0=single channel, 1=multi-channel |
+| 2-0 | **CC:CB:CA** | Channel select (000=AN0 → 111=AN7) |
+
+**Controls:** Channel selection, scan mode, justification, data format.  
+
+**Example:**
+```asm
+LDAA  #%10000000   ; right-justified, single conv., channel AN0
+STAA  ATDCTL5
+```
+---
+
+## ⏱️ Timer System Registers
+
+---
+
+### **TSCR1 — Timer System Control Register 1**
+**Full Name:** Timer System Control Register 1  
+**Purpose:** Enables the timer module and manages flag clearing.  
+
+| Bit | Name | Function |
+|-----|------|-----------|
+| 7 | **TEN** | 1 = enable timer |
+| 6 | **TFFCA** | 1 = fast flag clear mode |
+| 5-0 | — | Unused |
+
+**Controls:** Turns the timer on/off, sets flag behavior.  
+
+**Example:**
+```asm
+BSET  TSCR1,%10000000   ; enable timer
+```
+---
+
+### **TSCR2 — Timer System Control Register 2**
+**Full Name:** Timer System Control Register 2  
+**Purpose:** Controls prescaler and overflow interrupt behavior.  
+
+| Bit | Name | Function |
+|-----|------|-----------|
+| 7 | **TOI** | Enable timer overflow interrupt |
+| 5 | **TCRE** | 1 = reset TCNT after OC7 event |
+| 2-0 | **PR2–PR0** | Prescaler (000=÷1, 001=÷2 … 111=÷128) |
+
+**Controls:** Timer speed and overflow interrupt enable.  
+
+**Example:**
+```asm
+LDAA  #%00000111   ; prescaler ÷128
+STAA  TSCR2
+```
+---
+
+### **TFLG2 — Timer Flag Register 2**
+**Full Name:** Timer Flag Register 2  
+**Purpose:** Indicates if the timer has overflowed.  
+
+| Bit | Name | Function |
+|-----|------|-----------|
+| 7 | **TOF** | 1 = timer overflow flag |
+
+**Controls:** Overflow event tracking.  
+
+**Example:**
+```asm
+BRCLR TFLG2,$80,Wait ; loop until overflow flag set
+BSET  TFLG2,$80       ; clear overflow flag
+```
+---
+
+### **TIOS — Timer Input Capture / Output Compare Select**
+**Full Name:** Timer I/O Select Register  
+**Purpose:** Chooses whether each timer channel acts as input capture or output compare.  
+
+| Bit | Name | Function |
+|-----|------|-----------|
+| 7-0 | **IOS7–IOS0** | 0 = input capture, 1 = output compare |
+
+**Controls:** Capture/compare mode for 8 timer channels.  
+
+**Example:**
+```asm
+BSET  TIOS,%00000001   ; make channel 0 output compare
+```
+---
+
+## ⚙️ Combined Example: Blinking LED using Timer
+
+```asm
+BSET  DDRP,%11111111    ; Port P as output
+BSET  TSCR1,%10000000   ; Enable timer
+LDAA  #%00000111
+STAA  TSCR2             ; Prescaler ÷128 for slower timing
+
+Loop:
+  BRCLR TFLG2,$80,Loop  ; Wait for overflow
+  BSET  TFLG2,$80       ; Clear overflow flag
+  EORA  #%10000000      ; Toggle LED on PP7
+  STAA  PTP
+  BRA   Loop
+```
+
+💡 **How it works:**  
+Timer counts up → when it overflows, `TOF` flag is set → loop detects overflow, clears flag, toggles LED → repeats.
+
+---
+
+## ✅ Quick Summary Table
+
+| Register | Full Name | Controls / Purpose |
+|-----------|------------|--------------------|
+| **ATDCTL2** | ATD Control Reg 2 | Power, trigger, interrupts |
+| **ATDCTL3** | ATD Control Reg 3 | Sequence length, FIFO mode |
+| **ATDCTL4** | ATD Control Reg 4 | Resolution, sample time, prescaler |
+| **ATDCTL5** | ATD Control Reg 5 | Channel, justification, scan, start conversion |
+| **TSCR1** | Timer System Control Reg 1 | Enable timer, fast flag clear |
+| **TSCR2** | Timer System Control Reg 2 | Prescaler, overflow interrupt |
+| **TFLG2** | Timer Flag Reg 2 | Overflow flag (TOF) |
+| **TIOS** | Timer I/O Select | Capture vs compare mode |
+。">
+<meta property="og:title" content="🧭 HCS12 Register Summary Sheet">
+<meta property="og:description" content="# 🧭 HCS12 Register Summary Sheet
+
+---
+
+## ⚡ Analog-to-Digital Converter (ATD)
+
+---
+
+### **ATDCTL2 — Control Register 2**
+**Full Name:** ATD Control Register 2  
+**Purpose:** Controls ADC power, fast flag clearing, external trigger, and interrupt enable.  
+
+| Bit | Name | Function |
+|-----|------|-----------|
+| 7 | **ADPU** | 1 = Power up ATD (must set before use) |
+| 6 | **AFFC** | Fast flag clear; 1 = read result clears flag |
+| 5-4 | **ETRIGLE / ETRIGP** | Select edge/level for external trigger:<br>00 falling, 01 rising, 10 low, 11 high |
+| 3 | **ETRIGE** | Enable external trigger |
+| 2 | **ASCIE** | Enable ATD sequence complete interrupt |
+| 1 | **ASCIF** | ATD sequence complete flag |
+
+**Controls:** Power, interrupt, and trigger behavior.  
+
+**Example:**
+```asm
+LDAA  #%10000000   ; ADPU=1 → power up ATD
+STAA  ATDCTL2
+```
+---
+
+### **ATDCTL3 — Control Register 3**
+**Full Name:** ATD Control Register 3  
+**Purpose:** Sets conversion sequence length and result register mode.  
+
+| Bits | Name | Function |
+|-------|------|-----------|
+| 7-4 | **S8C–S1C** | Sequence length (0000=8 conv, 0001=1 conv …) |
+| 3 | **FIFO** | 1 = FIFO mode (wrap results), 0 = normal |
+| 2-0 | — | Unused |
+
+**Controls:** Number of conversions per sequence + how results are stored.  
+
+**Example:**
+```asm
+LDAA  #%00000001   ; 1 conversion, normal mode
+STAA  ATDCTL3
+```
+---
+
+### **ATDCTL4 — Control Register 4**
+**Full Name:** ATD Control Register 4  
+**Purpose:** Sets resolution, sample time, and ADC clock speed (prescaler).  
+
+| Bit | Name | Function |
+|-----|------|-----------|
+| 7 | **SRES8** | 0=10-bit, 1=8-bit resolution |
+| 6-5 | **SMP1:SMP0** | Sample time (00=2, 01=4, 10=8, 11=16 ATD clocks) |
+| 4-0 | **PRS4–PRS0** | Prescaler (00101=÷12, 01101=÷24, 10111=÷48) |
+
+**Controls:** Conversion precision and timing.  
+
+**Example:**
+```asm
+LDAA  #%00010101   ; 10-bit, sample=2, prescaler=÷12
+STAA  ATDCTL4
+```
+---
+
+### **ATDCTL5 — Control Register 5**
+**Full Name:** ATD Control Register 5  
+**Purpose:** Starts a new conversion and selects channel/mode.  
+
+| Bit | Name | Function |
+|-----|------|-----------|
+| 7 | **DJM** | 0=left-justified, 1=right-justified result |
+| 6 | **DSGN** | 0=unsigned, 1=signed |
+| 5 | **SCAN** | 0=single sequence, 1=continuous mode |
+| 4 | **MULT** | 0=single channel, 1=multi-channel |
+| 2-0 | **CC:CB:CA** | Channel select (000=AN0 → 111=AN7) |
+
+**Controls:** Channel selection, scan mode, justification, data format.  
+
+**Example:**
+```asm
+LDAA  #%10000000   ; right-justified, single conv., channel AN0
+STAA  ATDCTL5
+```
+---
+
+## ⏱️ Timer System Registers
+
+---
+
+### **TSCR1 — Timer System Control Register 1**
+**Full Name:** Timer System Control Register 1  
+**Purpose:** Enables the timer module and manages flag clearing.  
+
+| Bit | Name | Function |
+|-----|------|-----------|
+| 7 | **TEN** | 1 = enable timer |
+| 6 | **TFFCA** | 1 = fast flag clear mode |
+| 5-0 | — | Unused |
+
+**Controls:** Turns the timer on/off, sets flag behavior.  
+
+**Example:**
+```asm
+BSET  TSCR1,%10000000   ; enable timer
+```
+---
+
+### **TSCR2 — Timer System Control Register 2**
+**Full Name:** Timer System Control Register 2  
+**Purpose:** Controls prescaler and overflow interrupt behavior.  
+
+| Bit | Name | Function |
+|-----|------|-----------|
+| 7 | **TOI** | Enable timer overflow interrupt |
+| 5 | **TCRE** | 1 = reset TCNT after OC7 event |
+| 2-0 | **PR2–PR0** | Prescaler (000=÷1, 001=÷2 … 111=÷128) |
+
+**Controls:** Timer speed and overflow interrupt enable.  
+
+**Example:**
+```asm
+LDAA  #%00000111   ; prescaler ÷128
+STAA  TSCR2
+```
+---
+
+### **TFLG2 — Timer Flag Register 2**
+**Full Name:** Timer Flag Register 2  
+**Purpose:** Indicates if the timer has overflowed.  
+
+| Bit | Name | Function |
+|-----|------|-----------|
+| 7 | **TOF** | 1 = timer overflow flag |
+
+**Controls:** Overflow event tracking.  
+
+**Example:**
+```asm
+BRCLR TFLG2,$80,Wait ; loop until overflow flag set
+BSET  TFLG2,$80       ; clear overflow flag
+```
+---
+
+### **TIOS — Timer Input Capture / Output Compare Select**
+**Full Name:** Timer I/O Select Register  
+**Purpose:** Chooses whether each timer channel acts as input capture or output compare.  
+
+| Bit | Name | Function |
+|-----|------|-----------|
+| 7-0 | **IOS7–IOS0** | 0 = input capture, 1 = output compare |
+
+**Controls:** Capture/compare mode for 8 timer channels.  
+
+**Example:**
+```asm
+BSET  TIOS,%00000001   ; make channel 0 output compare
+```
+---
+
+## ⚙️ Combined Example: Blinking LED using Timer
+
+```asm
+BSET  DDRP,%11111111    ; Port P as output
+BSET  TSCR1,%10000000   ; Enable timer
+LDAA  #%00000111
+STAA  TSCR2             ; Prescaler ÷128 for slower timing
+
+Loop:
+  BRCLR TFLG2,$80,Loop  ; Wait for overflow
+  BSET  TFLG2,$80       ; Clear overflow flag
+  EORA  #%10000000      ; Toggle LED on PP7
+  STAA  PTP
+  BRA   Loop
+```
+
+💡 **How it works:**  
+Timer counts up → when it overflows, `TOF` flag is set → loop detects overflow, clears flag, toggles LED → repeats.
+
+---
+
+## ✅ Quick Summary Table
+
+| Register | Full Name | Controls / Purpose |
+|-----------|------------|--------------------|
+| **ATDCTL2** | ATD Control Reg 2 | Power, trigger, interrupts |
+| **ATDCTL3** | ATD Control Reg 3 | Sequence length, FIFO mode |
+| **ATDCTL4** | ATD Control Reg 4 | Resolution, sample time, prescaler |
+| **ATDCTL5** | ATD Control Reg 5 | Channel, justification, scan, start conversion |
+| **TSCR1** | Timer System Control Reg 1 | Enable timer, fast flag clear |
+| **TSCR2** | Timer System Control Reg 2 | Prescaler, overflow interrupt |
+| **TFLG2** | Timer Flag Reg 2 | Overflow flag (TOF) |
+| **TIOS** | Timer I/O Select | Capture vs compare mode |
+。">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://Miikka11213.github.io/miikka.github.io/post/%F0%9F%A7%AD%20HCS12%20Register%20Summary%20Sheet.html">
+<meta property="og:image" content="https://avatars.githubusercontent.com/u/91852814?v=4">
+<title>🧭 HCS12 Register Summary Sheet</title>
+<link href="//unpkg.com/@wooorm/starry-night@2.1.1/style/both.css" rel="stylesheet" />
+
+
+</head>
+<style>
+body{box-sizing: border-box;min-width: 200px;max-width: 900px;margin: 20px auto;padding: 45px;font-size: 16px;font-family: sans-serif;line-height: 1.25;}
+#header{display:flex;padding-bottom:8px;border-bottom: 1px solid var(--borderColor-muted, var(--color-border-muted));margin-bottom: 16px;}
+#footer {margin-top:64px; text-align: center;font-size: small;}
+
+</style>
+
+<style>
+.postTitle{margin: auto 0;font-size:40px;font-weight:bold;}
+.title-right{display:flex;margin:auto 0 0 auto;}
+.title-right .circle{padding: 14px 16px;margin-right:8px;}
+#postBody{border-bottom: 1px solid var(--color-border-default);padding-bottom:36px;}
+#postBody hr{height:2px;}
+#cmButton{height:48px;margin-top:48px;}
+#comments{margin-top:64px;}
+.g-emoji{font-size:24px;}
+@media (max-width: 600px) {
+    body {padding: 8px;}
+    .postTitle{font-size:24px;}
+}
+.copy-feedback {
+    display: none;
+    position: absolute;
+    top: 10px;
+    right: 50px;
+    color: var(--color-fg-on-emphasis);
+    background-color: var(--color-fg-muted);
+    border-radius: 3px;
+    padding: 5px 8px;
+    font-size: 12px;
+}
+</style>
+
+
+
+
+<body>
+    <div id="header">
+<h1 class="postTitle">🧭 HCS12 Register Summary Sheet</h1>
+<div class="title-right">
+    <a href="https://Miikka11213.github.io/miikka.github.io" id="buttonHome" class="btn btn-invisible circle" title="首页">
+        <svg class="octicon" width="16" height="16">
+            <path id="pathHome" fill-rule="evenodd"></path>
+        </svg>
+    </a>
+    
+    <a href="https://github.com/Miikka11213/miikka.github.io/issues/11" target="_blank" class="btn btn-invisible circle" title="Issue">
+        <svg class="octicon" width="16" height="16">
+            <path id="pathIssue" fill-rule="evenodd"></path>
+        </svg>
+    </a>
+    
+
+    <a class="btn btn-invisible circle" onclick="modeSwitch();" title="切换主题">
+        <svg class="octicon" width="16" height="16" >
+            <path id="themeSwitch" fill-rule="evenodd"></path>
+        </svg>
+    </a>
+
+</div>
+</div>
+    <div id="content">
+<div class="markdown-body" id="postBody"><h1>🧭 HCS12 Register Summary Sheet</h1>
+<hr>
+<h2>⚡ Analog-to-Digital Converter (ATD)</h2>
+<hr>
+<h3><strong>ATDCTL2 — Control Register 2</strong></h3>
+<p><strong>Full Name:</strong> ATD Control Register 2<br>
+<strong>Purpose:</strong> Controls ADC power, fast flag clearing, external trigger, and interrupt enable.</p>
+<markdown-accessiblity-table><table role="table">
+<thead>
+<tr>
+<th>Bit</th>
+<th>Name</th>
+<th>Function</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>7</td>
+<td><strong>ADPU</strong></td>
+<td>1 = Power up ATD (must set before use)</td>
+</tr>
+<tr>
+<td>6</td>
+<td><strong>AFFC</strong></td>
+<td>Fast flag clear; 1 = read result clears flag</td>
+</tr>
+<tr>
+<td>5-4</td>
+<td><strong>ETRIGLE / ETRIGP</strong></td>
+<td>Select edge/level for external trigger:<br>00 falling, 01 rising, 10 low, 11 high</td>
+</tr>
+<tr>
+<td>3</td>
+<td><strong>ETRIGE</strong></td>
+<td>Enable external trigger</td>
+</tr>
+<tr>
+<td>2</td>
+<td><strong>ASCIE</strong></td>
+<td>Enable ATD sequence complete interrupt</td>
+</tr>
+<tr>
+<td>1</td>
+<td><strong>ASCIF</strong></td>
+<td>ATD sequence complete flag</td>
+</tr>
+</tbody>
+</table></markdown-accessiblity-table>
+<p><strong>Controls:</strong> Power, interrupt, and trigger behavior.</p>
+<p><strong>Example:</strong></p>
+<div class="highlight highlight-source-assembly"><pre class="notranslate"><span class="pl-en">LDAA  #%</span><span class="pl-c1">10000000</span><span class="pl-c">   ; ADPU=1 → power up ATD</span>
+<span class="pl-en">STAA  ATDCTL2</span></pre></div>
+<hr>
+<h3><strong>ATDCTL3 — Control Register 3</strong></h3>
+<p><strong>Full Name:</strong> ATD Control Register 3<br>
+<strong>Purpose:</strong> Sets conversion sequence length and result register mode.</p>
+<markdown-accessiblity-table><table role="table">
+<thead>
+<tr>
+<th>Bits</th>
+<th>Name</th>
+<th>Function</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>7-4</td>
+<td><strong>S8C–S1C</strong></td>
+<td>Sequence length (0000=8 conv, 0001=1 conv …)</td>
+</tr>
+<tr>
+<td>3</td>
+<td><strong>FIFO</strong></td>
+<td>1 = FIFO mode (wrap results), 0 = normal</td>
+</tr>
+<tr>
+<td>2-0</td>
+<td>—</td>
+<td>Unused</td>
+</tr>
+</tbody>
+</table></markdown-accessiblity-table>
+<p><strong>Controls:</strong> Number of conversions per sequence + how results are stored.</p>
+<p><strong>Example:</strong></p>
+<div class="highlight highlight-source-assembly"><pre class="notranslate"><span class="pl-en">LDAA  #%</span><span class="pl-c1">00000001</span><span class="pl-c">   ; 1 conversion, normal mode</span>
+<span class="pl-en">STAA  ATDCTL3</span></pre></div>
+<hr>
+<h3><strong>ATDCTL4 — Control Register 4</strong></h3>
+<p><strong>Full Name:</strong> ATD Control Register 4<br>
+<strong>Purpose:</strong> Sets resolution, sample time, and ADC clock speed (prescaler).</p>
+<markdown-accessiblity-table><table role="table">
+<thead>
+<tr>
+<th>Bit</th>
+<th>Name</th>
+<th>Function</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>7</td>
+<td><strong>SRES8</strong></td>
+<td>0=10-bit, 1=8-bit resolution</td>
+</tr>
+<tr>
+<td>6-5</td>
+<td><strong>SMP1:SMP0</strong></td>
+<td>Sample time (00=2, 01=4, 10=8, 11=16 ATD clocks)</td>
+</tr>
+<tr>
+<td>4-0</td>
+<td><strong>PRS4–PRS0</strong></td>
+<td>Prescaler (00101=÷12, 01101=÷24, 10111=÷48)</td>
+</tr>
+</tbody>
+</table></markdown-accessiblity-table>
+<p><strong>Controls:</strong> Conversion precision and timing.</p>
+<p><strong>Example:</strong></p>
+<div class="highlight highlight-source-assembly"><pre class="notranslate"><span class="pl-en">LDAA  #%</span><span class="pl-c1">00010101</span><span class="pl-c">   ; 10-bit, sample=2, prescaler=÷12</span>
+<span class="pl-en">STAA  ATDCTL4</span></pre></div>
+<hr>
+<h3><strong>ATDCTL5 — Control Register 5</strong></h3>
+<p><strong>Full Name:</strong> ATD Control Register 5<br>
+<strong>Purpose:</strong> Starts a new conversion and selects channel/mode.</p>
+<markdown-accessiblity-table><table role="table">
+<thead>
+<tr>
+<th>Bit</th>
+<th>Name</th>
+<th>Function</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>7</td>
+<td><strong>DJM</strong></td>
+<td>0=left-justified, 1=right-justified result</td>
+</tr>
+<tr>
+<td>6</td>
+<td><strong>DSGN</strong></td>
+<td>0=unsigned, 1=signed</td>
+</tr>
+<tr>
+<td>5</td>
+<td><strong>SCAN</strong></td>
+<td>0=single sequence, 1=continuous mode</td>
+</tr>
+<tr>
+<td>4</td>
+<td><strong>MULT</strong></td>
+<td>0=single channel, 1=multi-channel</td>
+</tr>
+<tr>
+<td>2-0</td>
+<td><strong>CC:CB:CA</strong></td>
+<td>Channel select (000=AN0 → 111=AN7)</td>
+</tr>
+</tbody>
+</table></markdown-accessiblity-table>
+<p><strong>Controls:</strong> Channel selection, scan mode, justification, data format.</p>
+<p><strong>Example:</strong></p>
+<div class="highlight highlight-source-assembly"><pre class="notranslate"><span class="pl-en">LDAA  #%</span><span class="pl-c1">10000000</span><span class="pl-c">   ; right-justified, single conv., channel AN0</span>
+<span class="pl-en">STAA  ATDCTL5</span></pre></div>
+<hr>
+<h2>⏱️ Timer System Registers</h2>
+<hr>
+<h3><strong>TSCR1 — Timer System Control Register 1</strong></h3>
+<p><strong>Full Name:</strong> Timer System Control Register 1<br>
+<strong>Purpose:</strong> Enables the timer module and manages flag clearing.</p>
+<markdown-accessiblity-table><table role="table">
+<thead>
+<tr>
+<th>Bit</th>
+<th>Name</th>
+<th>Function</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>7</td>
+<td><strong>TEN</strong></td>
+<td>1 = enable timer</td>
+</tr>
+<tr>
+<td>6</td>
+<td><strong>TFFCA</strong></td>
+<td>1 = fast flag clear mode</td>
+</tr>
+<tr>
+<td>5-0</td>
+<td>—</td>
+<td>Unused</td>
+</tr>
+</tbody>
+</table></markdown-accessiblity-table>
+<p><strong>Controls:</strong> Turns the timer on/off, sets flag behavior.</p>
+<p><strong>Example:</strong></p>
+<div class="highlight highlight-source-assembly"><pre class="notranslate"><span class="pl-en">BSET  TSCR1</span><span class="pl-s1">,</span><span class="pl-en">%</span><span class="pl-c1">10000000</span><span class="pl-c">   ; enable timer</span></pre></div>
+<hr>
+<h3><strong>TSCR2 — Timer System Control Register 2</strong></h3>
+<p><strong>Full Name:</strong> Timer System Control Register 2<br>
+<strong>Purpose:</strong> Controls prescaler and overflow interrupt behavior.</p>
+<markdown-accessiblity-table><table role="table">
+<thead>
+<tr>
+<th>Bit</th>
+<th>Name</th>
+<th>Function</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>7</td>
+<td><strong>TOI</strong></td>
+<td>Enable timer overflow interrupt</td>
+</tr>
+<tr>
+<td>5</td>
+<td><strong>TCRE</strong></td>
+<td>1 = reset TCNT after OC7 event</td>
+</tr>
+<tr>
+<td>2-0</td>
+<td><strong>PR2–PR0</strong></td>
+<td>Prescaler (000=÷1, 001=÷2 … 111=÷128)</td>
+</tr>
+</tbody>
+</table></markdown-accessiblity-table>
+<p><strong>Controls:</strong> Timer speed and overflow interrupt enable.</p>
+<p><strong>Example:</strong></p>
+<div class="highlight highlight-source-assembly"><pre class="notranslate"><span class="pl-en">LDAA  #%</span><span class="pl-c1">00000111</span><span class="pl-c">   ; prescaler ÷128</span>
+<span class="pl-en">STAA  TSCR2</span></pre></div>
+<hr>
+<h3><strong>TFLG2 — Timer Flag Register 2</strong></h3>
+<p><strong>Full Name:</strong> Timer Flag Register 2<br>
+<strong>Purpose:</strong> Indicates if the timer has overflowed.</p>
+<markdown-accessiblity-table><table role="table">
+<thead>
+<tr>
+<th>Bit</th>
+<th>Name</th>
+<th>Function</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>7</td>
+<td><strong>TOF</strong></td>
+<td>1 = timer overflow flag</td>
+</tr>
+</tbody>
+</table></markdown-accessiblity-table>
+<p><strong>Controls:</strong> Overflow event tracking.</p>
+<p><strong>Example:</strong></p>
+<div class="highlight highlight-source-assembly"><pre class="notranslate"><span class="pl-en">BRCLR TFLG2</span><span class="pl-s1">,</span><span class="pl-c1">$</span><span class="pl-c1">80</span><span class="pl-s1">,</span><span class="pl-k">Wait</span><span class="pl-c"> ; loop until overflow flag set</span>
+<span class="pl-en">BSET  TFLG2</span><span class="pl-s1">,</span><span class="pl-c1">$</span><span class="pl-c1">80</span><span class="pl-c">       ; clear overflow flag</span></pre></div>
+<hr>
+<h3><strong>TIOS — Timer Input Capture / Output Compare Select</strong></h3>
+<p><strong>Full Name:</strong> Timer I/O Select Register<br>
+<strong>Purpose:</strong> Chooses whether each timer channel acts as input capture or output compare.</p>
+<markdown-accessiblity-table><table role="table">
+<thead>
+<tr>
+<th>Bit</th>
+<th>Name</th>
+<th>Function</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>7-0</td>
+<td><strong>IOS7–IOS0</strong></td>
+<td>0 = input capture, 1 = output compare</td>
+</tr>
+</tbody>
+</table></markdown-accessiblity-table>
+<p><strong>Controls:</strong> Capture/compare mode for 8 timer channels.</p>
+<p><strong>Example:</strong></p>
+<div class="highlight highlight-source-assembly"><pre class="notranslate"><span class="pl-en">BSET  TIOS</span><span class="pl-s1">,</span><span class="pl-en">%</span><span class="pl-c1">00000001</span><span class="pl-c">   ; make channel 0 output compare</span></pre></div>
+<hr>
+<h2>⚙️ Combined Example: Blinking LED using Timer</h2>
+<div class="highlight highlight-source-assembly"><pre class="notranslate"><span class="pl-en">BSET  DDRP</span><span class="pl-s1">,</span><span class="pl-en">%</span><span class="pl-c1">11111111</span><span class="pl-c">    ; Port P as output</span>
+<span class="pl-en">BSET  TSCR1</span><span class="pl-s1">,</span><span class="pl-en">%</span><span class="pl-c1">10000000</span><span class="pl-c">   ; Enable timer</span>
+<span class="pl-en">LDAA  #%</span><span class="pl-c1">00000111</span>
+<span class="pl-en">STAA  TSCR2</span><span class="pl-c">             ; Prescaler ÷128 for slower timing</span>
+
+<span class="pl-k">Loop</span><span class="pl-en">:</span>
+<span class="pl-en">  BRCLR TFLG2</span><span class="pl-s1">,</span><span class="pl-c1">$</span><span class="pl-c1">80</span><span class="pl-s1">,</span><span class="pl-k">Loop</span><span class="pl-c">  ; Wait for overflow</span>
+<span class="pl-en">  BSET  TFLG2</span><span class="pl-s1">,</span><span class="pl-c1">$</span><span class="pl-c1">80</span><span class="pl-c">       ; Clear overflow flag</span>
+<span class="pl-en">  EORA  #%</span><span class="pl-c1">10000000</span><span class="pl-c">      ; Toggle LED on PP7</span>
+<span class="pl-en">  STAA  PTP</span>
+<span class="pl-en">  BRA   </span><span class="pl-k">Loop</span></pre></div>
+<p>💡 <strong>How it works:</strong><br>
+Timer counts up → when it overflows, <code class="notranslate">TOF</code> flag is set → loop detects overflow, clears flag, toggles LED → repeats.</p>
+<hr>
+<h2>✅ Quick Summary Table</h2>
+<markdown-accessiblity-table><table role="table">
+<thead>
+<tr>
+<th>Register</th>
+<th>Full Name</th>
+<th>Controls / Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>ATDCTL2</strong></td>
+<td>ATD Control Reg 2</td>
+<td>Power, trigger, interrupts</td>
+</tr>
+<tr>
+<td><strong>ATDCTL3</strong></td>
+<td>ATD Control Reg 3</td>
+<td>Sequence length, FIFO mode</td>
+</tr>
+<tr>
+<td><strong>ATDCTL4</strong></td>
+<td>ATD Control Reg 4</td>
+<td>Resolution, sample time, prescaler</td>
+</tr>
+<tr>
+<td><strong>ATDCTL5</strong></td>
+<td>ATD Control Reg 5</td>
+<td>Channel, justification, scan, start conversion</td>
+</tr>
+<tr>
+<td><strong>TSCR1</strong></td>
+<td>Timer System Control Reg 1</td>
+<td>Enable timer, fast flag clear</td>
+</tr>
+<tr>
+<td><strong>TSCR2</strong></td>
+<td>Timer System Control Reg 2</td>
+<td>Prescaler, overflow interrupt</td>
+</tr>
+<tr>
+<td><strong>TFLG2</strong></td>
+<td>Timer Flag Reg 2</td>
+<td>Overflow flag (TOF)</td>
+</tr>
+<tr>
+<td><strong>TIOS</strong></td>
+<td>Timer I/O Select</td>
+<td>Capture vs compare mode</td>
+</tr>
+</tbody>
+</table></markdown-accessiblity-table></div>
+<div style="font-size:small;margin-top:8px;float:right;"></div>
+
+<button class="btn btn-block" type="button" onclick="openComments()" id="cmButton">评论</button>
+<div class="comments" id="comments"></div>
+
+</div>
+    <div id="footer"><div id="footer1">Copyright © <span id="copyrightYear"></span> <a href="https://Miikka11213.github.io/miikka.github.io">Miikka's Blog</a></div>
+<div id="footer2">
+    <span id="runday"></span><span>Powered by <a href="https://meekdai.com/Gmeek.html" target="_blank">Gmeek</a></span>
+</div>
+
+<script>
+var now=new Date();
+document.getElementById("copyrightYear").innerHTML=now.getFullYear();
+
+if(""!=""){
+    var startSite=new Date("");
+    var diff=now.getTime()-startSite.getTime();
+    var diffDay=Math.floor(diff/(1000*60*60*24));
+    document.getElementById("runday").innerHTML="网站运行"+diffDay+"天"+" • ";
+}
+</script></div>
+</body>
+<script>
+var IconList={'sun': 'M8 10.5a2.5 2.5 0 100-5 2.5 2.5 0 000 5zM8 12a4 4 0 100-8 4 4 0 000 8zM8 0a.75.75 0 01.75.75v1.5a.75.75 0 01-1.5 0V.75A.75.75 0 018 0zm0 13a.75.75 0 01.75.75v1.5a.75.75 0 01-1.5 0v-1.5A.75.75 0 018 13zM2.343 2.343a.75.75 0 011.061 0l1.06 1.061a.75.75 0 01-1.06 1.06l-1.06-1.06a.75.75 0 010-1.06zm9.193 9.193a.75.75 0 011.06 0l1.061 1.06a.75.75 0 01-1.06 1.061l-1.061-1.06a.75.75 0 010-1.061zM16 8a.75.75 0 01-.75.75h-1.5a.75.75 0 010-1.5h1.5A.75.75 0 0116 8zM3 8a.75.75 0 01-.75.75H.75a.75.75 0 010-1.5h1.5A.75.75 0 013 8zm10.657-5.657a.75.75 0 010 1.061l-1.061 1.06a.75.75 0 11-1.06-1.06l1.06-1.06a.75.75 0 011.06 0zm-9.193 9.193a.75.75 0 010 1.06l-1.06 1.061a.75.75 0 11-1.061-1.06l1.06-1.061a.75.75 0 011.061 0z', 'moon': 'M9.598 1.591a.75.75 0 01.785-.175 7 7 0 11-8.967 8.967.75.75 0 01.961-.96 5.5 5.5 0 007.046-7.046.75.75 0 01.175-.786zm1.616 1.945a7 7 0 01-7.678 7.678 5.5 5.5 0 107.678-7.678z', 'sync': 'M1.705 8.005a.75.75 0 0 1 .834.656 5.5 5.5 0 0 0 9.592 2.97l-1.204-1.204a.25.25 0 0 1 .177-.427h3.646a.25.25 0 0 1 .25.25v3.646a.25.25 0 0 1-.427.177l-1.38-1.38A7.002 7.002 0 0 1 1.05 8.84a.75.75 0 0 1 .656-.834ZM8 2.5a5.487 5.487 0 0 0-4.131 1.869l1.204 1.204A.25.25 0 0 1 4.896 6H1.25A.25.25 0 0 1 1 5.75V2.104a.25.25 0 0 1 .427-.177l1.38 1.38A7.002 7.002 0 0 1 14.95 7.16a.75.75 0 0 1-1.49.178A5.5 5.5 0 0 0 8 2.5Z', 'home': 'M6.906.664a1.749 1.749 0 0 1 2.187 0l5.25 4.2c.415.332.657.835.657 1.367v7.019A1.75 1.75 0 0 1 13.25 15h-3.5a.75.75 0 0 1-.75-.75V9H7v5.25a.75.75 0 0 1-.75.75h-3.5A1.75 1.75 0 0 1 1 13.25V6.23c0-.531.242-1.034.657-1.366l5.25-4.2Zm1.25 1.171a.25.25 0 0 0-.312 0l-5.25 4.2a.25.25 0 0 0-.094.196v7.019c0 .138.112.25.25.25H5.5V8.25a.75.75 0 0 1 .75-.75h3.5a.75.75 0 0 1 .75.75v5.25h2.75a.25.25 0 0 0 .25-.25V6.23a.25.25 0 0 0-.094-.195Z', 'github': 'M8 0c4.42 0 8 3.58 8 8a8.013 8.013 0 0 1-5.45 7.59c-.4.08-.55-.17-.55-.38 0-.27.01-1.13.01-2.2 0-.75-.25-1.23-.54-1.48 1.78-.2 3.65-.88 3.65-3.95 0-.88-.31-1.59-.82-2.15.08-.2.36-1.02-.08-2.12 0 0-.67-.22-2.2.82-.64-.18-1.32-.27-2-.27-.68 0-1.36.09-2 .27-1.53-1.03-2.2-.82-2.2-.82-.44 1.1-.16 1.92-.08 2.12-.51.56-.82 1.28-.82 2.15 0 3.06 1.86 3.75 3.64 3.95-.23.2-.44.55-.51 1.07-.46.21-1.61.55-2.33-.66-.15-.24-.6-.83-1.23-.82-.67.01-.27.38.01.53.34.19.73.9.82 1.13.16.45.68 1.31 2.69.94 0 .67.01 1.3.01 1.49 0 .21-.15.45-.55.38A7.995 7.995 0 0 1 0 8c0-4.42 3.58-8 8-8Z', 'copy': 'M0 6.75C0 5.784.784 5 1.75 5h1.5a.75.75 0 0 1 0 1.5h-1.5a.25.25 0 0 0-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 0 0 .25-.25v-1.5a.75.75 0 0 1 1.5 0v1.5A1.75 1.75 0 0 1 9.25 16h-7.5A1.75 1.75 0 0 1 0 14.25Z M5 1.75C5 .784 5.784 0 6.75 0h7.5C15.216 0 16 .784 16 1.75v7.5A1.75 1.75 0 0 1 14.25 11h-7.5A1.75 1.75 0 0 1 5 9.25Zm1.75-.25a.25.25 0 0 0-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 0 0 .25-.25v-7.5a.25.25 0 0 0-.25-.25Z', 'check': 'M13.78 4.22a.75.75 0 0 1 0 1.06l-7.25 7.25a.75.75 0 0 1-1.06 0L2.22 9.28a.751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018L6 10.94l6.72-6.72a.75.75 0 0 1 1.06 0Z'};
+var utterancesLoad=0;
+
+let themeSettings={
+    "dark": ["dark","moon","#00f0ff","dark-blue"],
+    "light": ["light","sun","#ff5000","github-light"],
+    "auto": ["auto","sync","","preferred-color-scheme"]
+};
+function changeTheme(mode, icon, color, utheme){
+    document.documentElement.setAttribute("data-color-mode",mode);
+    document.getElementById("themeSwitch").setAttribute("d",value=IconList[icon]);
+    document.getElementById("themeSwitch").parentNode.style.color=color;
+    if(utterancesLoad==1){utterancesTheme(utheme);}
+}
+function modeSwitch(){
+    let currentMode=document.documentElement.getAttribute('data-color-mode');
+    let newMode = currentMode === "light" ? "dark" : currentMode === "dark" ? "auto" : "light";
+    localStorage.setItem("meek_theme", newMode);
+    if(themeSettings[newMode]){
+        changeTheme(...themeSettings[newMode]);
+    }
+}
+function utterancesTheme(theme){
+    const message={type:'set-theme',theme: theme};
+    const iframe=document.getElementsByClassName('utterances-frame')[0];
+    iframe.contentWindow.postMessage(message,'https://utteranc.es');
+}
+if(themeSettings[theme]){changeTheme(...themeSettings[theme]);}
+console.log("\n %c Gmeek last https://github.com/Meekdai/Gmeek \n","padding:5px 0;background:#02d81d;color:#fff");
+</script>
+
+<script>
+document.getElementById("pathHome").setAttribute("d",IconList["home"]);
+document.getElementById("pathIssue").setAttribute("d",IconList["github"]);
+
+
+
+function openComments(){
+    cm=document.getElementById("comments");
+    cmButton=document.getElementById("cmButton");
+    cmButton.innerHTML="loading";
+    span=document.createElement("span");
+    span.setAttribute("class","AnimatedEllipsis");
+    cmButton.appendChild(span);
+
+    script=document.createElement("script");
+    script.setAttribute("src","https://utteranc.es/client.js");
+    script.setAttribute("repo","Miikka11213/miikka.github.io");
+    script.setAttribute("issue-term","title");
+    
+    if(localStorage.getItem("meek_theme")=="dark"){script.setAttribute("theme","dark-blue");}
+    else if(localStorage.getItem("meek_theme")=="light") {script.setAttribute("theme","github-light");}
+    else{script.setAttribute("theme","preferred-color-scheme");}
+    
+    script.setAttribute("crossorigin","anonymous");
+    script.setAttribute("async","");
+    cm.appendChild(script);
+
+    int=self.setInterval("iFrameLoading()",200);
+}
+
+function iFrameLoading(){
+    var utterances=document.getElementsByClassName('utterances');
+    if(utterances.length==1){
+        if(utterances[0].style.height!=""){
+            utterancesLoad=1;
+            int=window.clearInterval(int);
+            document.getElementById("cmButton").style.display="none";
+            console.log("utterances Load OK");
+        }
+    }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    const createClipboardHTML = (codeContent, additionalClasses = '') => `
+        <pre class="notranslate"><code class="notranslate">${codeContent}</code></pre>
+        <div class="clipboard-container position-absolute right-0 top-0 ${additionalClasses}">
+            <clipboard-copy class="ClipboardButton btn m-2 p-0" role="button" style="display: inherit;">
+                <svg height="16" width="16" class="octicon octicon-copy m-2"><path d="${IconList["copy"]}"></path></svg>
+                <svg height="16" width="16" class="octicon octicon-check color-fg-success m-2 d-none"><path d="${IconList["check"]}"></path></svg>
+            </clipboard-copy>
+            <div class="copy-feedback">Copied!</div>
+        </div>
+    `;
+
+    const handleCodeElements = (selector = '') => {
+        document.querySelectorAll(selector).forEach(codeElement => {
+            const codeContent = codeElement.innerHTML;
+            const newStructure = document.createElement('div');
+            newStructure.className = 'snippet-clipboard-content position-relative overflow-auto';
+            newStructure.innerHTML = createClipboardHTML(codeContent);
+
+            const parentElement = codeElement.parentElement;
+            if (selector.includes('highlight')) {
+                parentElement.insertBefore(newStructure, codeElement.nextSibling);
+                parentElement.removeChild(codeElement);
+            } else {
+                parentElement.parentElement.replaceChild(newStructure, parentElement);
+            }
+        });
+    };
+
+    handleCodeElements('pre.notranslate > code.notranslate');
+    handleCodeElements('div.highlight > pre.notranslate');
+
+    let currentFeedback = null;
+    document.querySelectorAll('clipboard-copy').forEach(copyButton => {
+        copyButton.addEventListener('click', () => {
+            const codeContent = copyButton.closest('.snippet-clipboard-content').innerText;
+            const tempTextArea = document.createElement('textarea');
+            tempTextArea.value = codeContent;
+            document.body.appendChild(tempTextArea);
+            tempTextArea.select();
+            document.execCommand('copy');
+            document.body.removeChild(tempTextArea);
+
+            const copyIcon = copyButton.querySelector('.octicon-copy');
+            const checkIcon = copyButton.querySelector('.octicon-check');
+            const copyFeedback = copyButton.nextElementSibling;
+
+            if (currentFeedback && currentFeedback !== copyFeedback) {currentFeedback.style.display = 'none';}
+            currentFeedback = copyFeedback;
+
+            copyIcon.classList.add('d-none');
+            checkIcon.classList.remove('d-none');
+            copyFeedback.style.display = 'block';
+            copyButton.style.borderColor = 'var(--color-success-fg)';
+
+            setTimeout(() => {
+                copyIcon.classList.remove('d-none');
+                checkIcon.classList.add('d-none');
+                copyFeedback.style.display = 'none';
+                copyButton.style.borderColor = '';
+            }, 2000);
+        });
+    });
+});
+
+</script>
+
+
+</html>
